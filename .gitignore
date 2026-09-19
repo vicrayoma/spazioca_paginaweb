@@ -1,0 +1,30 @@
+# Build y tipos generados
+dist/
+.astro/
+
+# Dependencias
+node_modules/
+
+# Variables de entorno y secretos (el repo es PÚBLICO: nada sensible entra aquí)
+.env
+.env.*
+!.env.example
+.dev.vars
+.wrangler/
+
+# Notas privadas (p. ej. detalles internos del CRM). Nunca se versionan.
+docs/private/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+.idea/
+
+# Claude Code (configuración local)
+.claude/settings.local.json

@@ -1,0 +1,55 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/jost';
+
+/*
+ * Tokens de marca de Spazio Centro Artístico.
+ * Fuente de verdad: docs/BRAND.md. Colores medidos del logo RGB para pantalla.
+ */
+@theme {
+  --color-morado: #542583;
+  --color-magenta: #c5297d;
+  --color-cian: #0097da;
+  --color-ciruela: #2e032e;
+
+  --color-tinta: #1f1f1d;
+  --color-papel: #ffffff;
+  --color-niebla: #f6f2f9;
+
+  --font-sans: 'Jost Variable', 'Jost', ui-sans-serif, system-ui, sans-serif;
+  /* Tipografía de titulares: pendiente de definir en la fase de diseño. */
+  --font-display: var(--font-sans);
+
+  --ease-spazio: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-papel);
+    color: var(--color-tinta);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-cian);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
