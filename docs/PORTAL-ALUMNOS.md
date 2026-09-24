@@ -2,54 +2,83 @@
 
 ## Decisión (2026-09-24)
 
-- **Admin de accesos:** se extiende el CRM existente (ya tiene `Student` y `User`/roles) — no se crea un
-  panel de administración nuevo ni se duplica la lista de alumnos.
-- **Login de alumnos:** usuario y contraseña individual (uno por alumno, fácil de dar de alta/baja).
-- **Video:** Cloudflare Stream, privado, con URLs de reproducción firmadas (no un enlace fijo que se
-  pueda compartir fuera del portal).
-- **Arquitectura:** app aparte en un subdominio propio, tal como estaba previsto desde la fase 1
-  (`docs/ARQUITECTURA.md`, fase 6). El sitio público sigue siendo 100% estático — esta decisión existe
-  justamente para no meterle sesiones, contraseñas ni datos de alumnos a lo que hoy no tiene ninguna
-  superficie de ataque.
+- **Admin de accesos:** se extiende el CRM existente (repo privado
+  `github.com/vrayonfreelance/SpazioCA`, carpeta `dance-academy/`) — no se creó un panel nuevo ni se
+  duplicó la lista de alumnos.
+- **Login de alumnos:** usuario y contraseña individual (uno por alumno).
+- **Video:** Cloudflare Stream, privado, con URLs de reproducción firmadas de 10 minutos.
+- **Subdominio del portal:** `alumnos.spaziocentroartistico.com`.
+- **Arquitectura:** app aparte, no parte de este sitio estático (fase 6 de `docs/ARQUITECTURA.md`,
+  adelantada a pedido del cliente).
 
-## Piezas a construir
+## Estado
 
-### 1. CRM (fuera de este repo — vive en Render)
+### 1. CRM — ✅ backend construido y probado (commit local, sin subir todavía)
 
-- Nuevo modelo Prisma para el acceso al portal (username, hash de contraseña con bcrypt, activo/inactivo,
-  fechas), separado del login administrativo de `User`.
-- Nuevo modelo para el catálogo de videos: título, disciplina (Salsa/Cumbia/Bachata), identificador del
-  video en Cloudflare Stream, orden, activo/inactivo.
-- Nueva sección de administración (solo con permiso) para dar de alta/baja accesos de alumnos y gestionar
-  el catálogo de videos.
-- Nuevos endpoints, separados del login administrativo:
-  - `POST /api/v1/portal/login` — valida usuario/contraseña, devuelve un token de sesión de corta duración.
-  - `GET /api/v1/portal/videos` — requiere sesión válida, devuelve la lista de videos con un token de
-    reproducción firmado de Cloudflare Stream (nunca la URL sin firmar).
-  - Con límite de intentos desde el arranque: el CRM hoy no tiene rate limiting en ningún login
-    (`docs/private/CRM.md`) — este endpoint nuevo debe nacer ya con esa protección.
+Rama `feature/portal-alumnos` sobre el repo del CRM (no sobre `main`). Probado de punta a punta contra
+un Postgres local real (Docker), no solo revisado a ojo:
 
-### 2. Portal (app nueva, subdominio propio)
+- Modelos nuevos: `PortalAccess` (username, hash bcrypt, activo, último ingreso — 1:1 con `Student`) y
+  `PortalVideo` (título, disciplina, id del video en Cloudflare Stream, orden, activo).
+- `POST /api/v1/portal/login` — usuario/contraseña, con límite de intentos (10 cada 15 min); devuelve un
+  token corto (12h), no una cookie de sesión — el CRM hoy no tenía rate limiting en ningún login.
+- `GET /api/v1/portal/videos` — requiere el token, devuelve los videos activos con una URL de
+  reproducción firmada por video (pide un token nuevo a la API de Cloudflare Stream en cada
+  petición, nunca guarda ni reutiliza un enlace fijo). Si Cloudflare Stream aún no está configurado,
+  responde una lista vacía en vez de romperse.
+- Nueva sección de administración `/portal`: alta/baja de accesos de alumnos (contraseña temporal
+  generada al azar, mostrada una sola vez), y catálogo de videos — mismo patrón que el resto del panel
+  (permisos por sección, bitácora). La bitácora nunca guarda el hash de la contraseña.
+- Migración de base de datos probada de verdad (aplicada contra Postgres limpio), no solo escrita a
+  mano.
 
-- No puede ser parte del sitio estático actual sin cambiarle la arquitectura: necesita mantener una
-  sesión de servidor. Se construye como un proyecto aparte.
-- Dos pantallas: login, y lista de videos con reproductor embebido de Cloudflare Stream.
-- El token de sesión vive en una cookie `HttpOnly`, `Secure`, `SameSite` puesta por un backend ligero
-  (Cloudflare Pages Functions) — nunca en `localStorage` del navegador, para reducir el riesgo si algún
-  día hay una vulnerabilidad XSS.
+**Pendiente:** revisar el diff, decidir si se abre como Pull Request o se fusiona directo, y hacer push
+de la rama (no se subió nada todavía, solo está en local).
 
-### 3. Cloudflare Stream
+### 2. Portal (app nueva, subdominio propio) — ⏳ sin empezar
 
-- Hay que activarlo en la cuenta de Cloudflare (tiene costo por almacenamiento y minutos entregados).
-- Subir ahí los videos de salsa, cumbia y bachata.
-- Generar las claves de firma que el endpoint del CRM usará para emitir URLs de reproducción temporales.
+Necesita: pantalla de login, pantalla de videos con reproductor embebido, y un backend ligero
+(Cloudflare Pages Functions) que guarde el token en una cookie `HttpOnly`/`Secure` propia del
+subdominio y lo reenvíe al CRM — el navegador del alumno nunca ve directamente la API del CRM.
 
-## Pendiente de definir con el cliente
+### 3. Cloudflare Stream — ⏳ sin activar
 
-1. ¿El código del CRM está accesible para trabajar directo en él (otra carpeta local, otro repo de
-   GitHub), o seguimos con el método ya usado en este proyecto (instrucciones/prompt para pasarle al
-   ChatGPT que lo construyó)?
-2. Subdominio exacto del portal — propuesta: `alumnos.spaziocentroartistico.com`.
-3. ¿Ya está activado Cloudflare Stream en la cuenta?
-4. Prioridad: ¿esto ahora, o primero el contenido pendiente del sitio público (fotos, precios, Galería,
-   Contacto — ver `docs/SITEMAP.md`)?
+Confirmado con el cliente (2026-09-24): **todavía no está contratado** en la cuenta de Cloudflare.
+Recomendado: Starter Bundle, $5 USD/mes (1,000 min almacenados, 5,000 min vistos/mes). Requiere vincular
+un método de pago — lo activa el cliente directamente en el dashboard, no algo que se haga por él.
+
+Una vez activo, hacen falta dos datos para las variables de entorno del CRM: el **Account ID** de
+Cloudflare, y un **API Token** con permiso "Stream: Edit" (se crea en
+`dash.cloudflare.com/profile/api-tokens`).
+
+## Hallazgos de seguridad detectados al construir esto (no relacionados con el portal en sí)
+
+Encontrados con acceso directo al código del CRM, más allá de lo que ya decía `docs/private/CRM.md`:
+
+1. **Credencial de administrador real y específica en el seed** (`prisma/seed.js`): crea
+   `daniel@spazioca.com.mx` con contraseña `123123` si esa cuenta no existe. Como el seed corre en cada
+   despliegue (`npm run start:prod`), y solo crea la cuenta la primera vez, es muy probable que esa sea
+   la contraseña real hoy en producción si nunca se cambió manualmente. **Urgente**: entrar con esa
+   cuenta y cambiarle la contraseña de inmediato si aplica.
+2. **Desfase entre `schema.prisma` y las migraciones ya aplicadas**: al generar la migración de este
+   cambio, Prisma detectó que las tablas existentes tienen `DEFAULT gen_random_uuid()` a nivel de base
+   de datos en su columna `id`, pero el schema actual ya no lo declara (Prisma genera el UUID del lado
+   de la aplicación). No es peligroso por sí solo — la app funciona igual porque siempre inserta por
+   Prisma Client — pero puede causar advertencias o migraciones accidentales la próxima vez que alguien
+   corra `prisma migrate dev` sin darse cuenta. Se dejó fuera de la migración de este cambio a propósito
+   (ver el commit) para no mezclar algo no relacionado con el portal.
+3. **`node_modules/` está versionado en el repo** (3,224 archivos) pese a estar en `.gitignore` — se
+   agregó al `.gitignore` después de haberse subido una vez. No es un riesgo de seguridad, pero infla el
+   repo y genera diffs enormes con cada `npm install`. Se puede limpiar con `git rm -r --cached
+   node_modules` en un commit aparte.
+4. **`.env` real está versionado** (ver hallazgo ya reportado): sin secretos reales expuestos
+   (credenciales de Postgres local por defecto, campos de Twilio vacíos), pero es una práctica a corregir.
+
+Ninguno de estos cuatro se tocó: son de otras partes del sistema, fuera del alcance de esta tarea.
+
+## Resuelto (ya no está pendiente)
+
+1. ~~¿Acceso al código del CRM?~~ — sí, repo de GitHub, confirmado con acceso de lectura y escritura.
+2. ~~Subdominio~~ — `alumnos.spaziocentroartistico.com`.
+3. ~~¿Cloudflare Stream activo?~~ — no, pendiente de que el cliente lo active.
+4. ~~Prioridad~~ — se adelantó, es el trabajo en curso.
