@@ -1,68 +1,75 @@
 # CRM y dominio principal
 
-> Este documento es público. **No** guardar aquí detalles internos del CRM (endpoints, esquema, claves).
-> Eso va en `docs/private/`, que git ignora.
+> Este documento es público. **No** guardar aquí detalles internos del CRM (endpoints, esquema, claves,
+> hallazgos de seguridad con detalle explotable). Eso va en `docs/private/CRM.md`, que git ignora.
 
-## Situación
+## Situación (confirmada 2026-09-24)
 
-El CRM está publicado en el dominio principal (apex), y la web pública también debe vivir ahí.
-Dos aplicaciones no pueden ocupar el mismo nombre de host, así que el CRM pasa a un subdominio.
+Dominio: **spaziocentroartistico.com**, registrado en GoDaddy. Hoy el apex sirve el login del CRM
+(sistema propio de gestión de alumnos/cobranza, Node + Express + PostgreSQL en Render). No existe un
+módulo de prospectos. Dos aplicaciones no pueden compartir el mismo host, así que el CRM pasa a un
+subdominio y el apex queda libre para la web pública.
 
 ## Estructura objetivo
 
 | Host | Sirve | Dónde |
 |---|---|---|
-| `dominio.com` y `www.dominio.com` | Web pública (Astro) | Cloudflare Pages |
-| `crm.dominio.com` | CRM (uso interno) | Donde esté hoy, con dominio personalizado nuevo |
+| `spaziocentroartistico.com` y `www.` | Web pública (Astro) | Cloudflare Pages |
+| `crm.spaziocentroartistico.com` | Sistema de gestión (uso interno) | Render (donde ya vive), con dominio personalizado nuevo |
+
+## Antes de migrar: seguridad del CRM
+
+El CRM guarda datos de menores. El informe técnico (`docs/private/CRM.md`) identificó puntos que conviene
+resolver **antes** de conectarle un formulario público: credencial de administrador fija en el código,
+ausencia de protección CSRF y de límite de intentos en el login, y credenciales de Twilio guardadas sin
+cifrar en la base de datos. Ninguno depende de este repositorio; los resuelve quien mantiene el CRM.
 
 ## Plan de migración (sin apagar nada hasta el final)
 
-1. **Inventario** del CRM (usar el prompt de abajo): dónde está alojado, cómo se sirve en el apex, qué URLs, cookies, OAuth y webhooks dependen del dominio.
-2. **Copia de todos los registros DNS** de GoDaddy (A, CNAME, MX, TXT de SPF/DKIM/DMARC…). Es lo crítico: si se pierden los MX o TXT, se cae el correo.
-3. **Publicar el CRM en `crm.dominio.com`** mientras el apex sigue funcionando. Actualizar sus URL base, redirect URIs, orígenes CORS y cookies. Probar por completo.
-4. **Mover los nameservers a Cloudflare** (registro en GoDaddy, DNS en Cloudflare), con los registros ya copiados y verificados.
-5. **Apuntar el apex y `www` a Cloudflare Pages.** Añadir redirecciones 301 de las rutas antiguas del CRM en el apex hacia `crm.dominio.com`, para que marcadores y enlaces enviados no se rompan.
-6. **Aislar la sesión del CRM:** cookies de sesión sin atributo `Domain` (solo del host `crm.`), `Secure`, `HttpOnly`, `SameSite`.
+1. Publicar el CRM en `crm.spaziocentroartistico.com` como dominio personalizado en Render, sin tocar el apex todavía.
+2. Copiar todos los registros DNS actuales de GoDaddy (A, CNAME, MX, TXT de SPF/DKIM/DMARC) antes de cualquier cambio. Es lo crítico: perder los MX o TXT tumba el correo.
+3. Validar el CRM funcionando por completo en el subdominio (login, permisos, pagos, mensualidades, WhatsApp, kiosko).
+4. Mover los nameservers a Cloudflare, con los registros ya copiados.
+5. Apuntar el apex y `www` a Cloudflare Pages (la web).
+6. Si hace falta preservar enlaces antiguos, redirecciones 301 desde el apex hacia `crm.`.
 
-## Integración web → CRM
+La cookie de sesión del CRM no lleva atributo `Domain`, así que apex y subdominio quedan con sesiones
+aisladas de forma automática — no se necesita trabajo extra para eso.
+
+## Integración web → CRM (prospectos)
+
+El CRM no tiene hoy un endpoint para prospectos. Se agregará uno nuevo, separado del login de usuarios:
 
 ```
-Navegador → /api/contacto (Pages Function) → CRM (API con clave o firma HMAC)
+Navegador → /api/contacto (Cloudflare Pages Function) → POST /api/v1/prospects (CRM, firma HMAC)
 ```
 
 - La web nunca expone credenciales del CRM: viven como secretos de Cloudflare.
-- El CRM debe ofrecer un endpoint de alta de prospectos autenticado (clave de API o firma), separado de su login de usuarios.
-- Protecciones en el endpoint de la web: validación estricta, Turnstile, honeypot, límite de peticiones y CORS restringido.
+- Autenticación servidor-a-servidor por firma HMAC (no una clave de API visible en el navegador).
+- Protecciones en el endpoint de la web: validación estricta, Turnstile, honeypot, límite de peticiones, CORS restringido al propio dominio.
 
 ## Prompt para el ChatGPT que diseñó el CRM
 
-Pégalo en la misma conversación donde se creó el CRM. Pide un informe técnico sin datos sensibles.
+Ya usado una vez (respuesta completa guardada en `docs/private/CRM.md`). Sirve para pedir un endurecimiento
+de seguridad antes de conectar el formulario público, o para retomar el diseño del endpoint de prospectos:
 
 ```text
-Necesito un informe técnico completo del CRM que diseñamos juntos, para integrarlo con una página web nueva y
-moverlo del dominio principal a un subdominio (crm.midominio.com). Responde en Markdown con exactamente estas
-secciones. Si algo no lo sabes o depende de cómo lo desplegué, dilo: no inventes.
+Antes de conectar un formulario público al sistema, necesito que prioricemos seguridad porque maneja datos
+de menores. Con base en lo que ya revisamos (versionado v1.6.66):
 
-IMPORTANTE: no incluyas contraseñas, tokens, claves ni valores reales de variables de entorno. Solo sus NOMBRES.
+1. Quita la credencial de administrador fija del seed y reemplázala por un procedimiento de bootstrap de
+   una sola vez (o una variable de entorno que se define en el primer arranque).
+2. Agrega protección CSRF a las rutas POST/PUT/PATCH/DELETE.
+3. Agrega límite de intentos en /login (rate limiting + bloqueo temporal tras varios fallos).
+4. Cifra las credenciales de Twilio guardadas en NotificationConfig, o muévelas por completo a variables
+   de entorno y quita el fallback en base de datos.
+5. Corrige el bug de auditoría: el router de paquetes registra una acción ENABLE que no existe en el enum
+   AuditAction (solo CREATE/UPDATE/DISABLE).
+6. Corrige el logout: usa el valor de SESSION_COOKIE_NAME en el clearCookie, en vez del nombre fijo
+   "dance.sid".
+7. Diseña e implementa POST /api/v1/prospects: modelo Prospect separado de Student, autenticación por
+   firma HMAC (no clave de API en el navegador), validación estricta del body, límite de peticiones e
+   Idempotency-Key.
 
-1. Resumen: qué hace el CRM y quién lo usa (roles).
-2. Stack: lenguaje, framework, base de datos, ORM, librerías principales y sus versiones.
-3. Alojamiento: qué proveedor/servicio lo sirve hoy, cómo se despliega y cómo está conectado al dominio principal
-   (servidor web, proxy, plataforma, registros DNS que necesita).
-4. Estructura del proyecto: árbol de carpetas y qué hace cada una.
-5. Modelo de datos: tablas/colecciones y campos (sobre todo prospectos, alumnos, tutores, grupos, pagos), con tipos.
-6. Autenticación y autorización: cómo inician sesión los usuarios, cómo se guardan las contraseñas, cómo se manejan
-   sesiones o tokens, roles y permisos.
-7. API: lista de todos los endpoints (método, ruta, autenticación requerida, cuerpo esperado y respuesta).
-   Indica si YA existe uno para crear un prospecto y cómo se autentica; si no existe, propón el diseño de uno
-   (con clave de API o firma HMAC, validación y límite de peticiones).
-8. Dependencias del dominio: todo lo que asuma que vive en la raíz del dominio (rutas absolutas, URL base, cookies con
-   atributo Domain, CORS, redirect URIs de OAuth, webhooks, enlaces en correos, integraciones).
-9. Variables de entorno: lista de nombres y para qué sirve cada una (sin valores).
-10. Seguridad: qué controles existen hoy (validación de entradas, protección contra inyección SQL/XSS/CSRF, límite de
-    intentos de login, cabeceras, HTTPS, registros de auditoría) y qué riesgos ves.
-11. Datos personales: qué datos de menores y de tutores se guardan, dónde, si hay cifrado y respaldos.
-12. Migración a subdominio: pasos exactos, en orden, con lo que hay que cambiar en el código y en la configuración,
-    y cómo verificar que todo funciona antes de cortar el dominio principal.
-13. Preguntas abiertas: todo lo que necesitas que yo te confirme.
+Para cada punto dime qué archivos tocaste y cómo lo pruebo antes de desplegar.
 ```
