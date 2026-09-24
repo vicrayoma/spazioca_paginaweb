@@ -1,8 +1,8 @@
 # Mapa del sitio y plan de contenido
 
 Fuente de verdad de qué lleva cada página y qué falta por confirmar. Se actualiza a medida que llega
-contenido real. **Inicio, Disciplinas y Horarios ya están construidas** (fase 3 arrancada para esas tres,
-2026-09-24); Nosotros, Galería y Contacto siguen en fase 2 (contenido pendiente).
+contenido real. **Inicio, Disciplinas, Horarios y Nosotros ya están construidas** (fase 3, 2026-09-24);
+Galería y Contacto siguen en fase 2 (contenido pendiente).
 
 ## Páginas
 
@@ -60,11 +60,16 @@ una foto o video corto y 2-3 líneas de descripción por disciplina — no se in
   de precios vigente por disciplina/paquete o un solo precio mensual, y si varía por edad o por número
   de clases.
 
-## Nosotros (`/nosotros`)
+## Nosotros (`/nosotros`) — ✅ construida (copy generada, pendiente de revisión)
 
-- Historia y filosofía de la academia. **Falta por completo** — solo se conoce el lema y que la dirige la
-  Lic. en Danza Angeles Méndez. No inventar biografía ni año de fundación.
-- Instructoras/es: nombre, disciplina que imparten, una línea de formación, foto. **Falta.**
+Historia, tres valores (Arte/Disciplina/Constancia) y una sección de la directora, con copy **generada
+por encargo explícito del cliente** (2026-09-24) a falta de un texto propio de la academia. Evita a
+propósito cualquier dato verificable no confirmado: sin año de fundación, sin cifras de alumnos, sin
+certificaciones ni nombres de instructoras/es distintos a la directora (único dato confirmado: Lic. en
+Danza Angeles Méndez). El código fuente (`src/pages/nosotros.astro`) trae un comentario con el mismo aviso.
+
+**Pendiente:** que la academia revise/ajuste este texto, y agregar foto y nombre de más instructoras/es
+si se quiere mostrarlos individualmente.
 
 ## Galería (`/galeria`)
 
@@ -83,7 +88,8 @@ una foto o video corto y 2-3 líneas de descripción por disciplina — no se in
 ## Pendientes para poder avanzar a fase 3
 
 1. ~~Tipografía de titulares~~ — decidido: Unbounded (ver `docs/BRAND.md`).
-2. Texto real de "Por qué Spazio" y de "Nosotros" (historia, filosofía).
+2. ~~Texto de "Nosotros"~~ — generado por encargo del cliente (2026-09-24), pendiente de que la academia
+   lo revise/ajuste (ver la sección de Nosotros arriba).
 3. Lista de precios vigente.
 4. Fotos/video propios (al menos una tanda inicial para no lanzar con espacios vacíos).
 5. Confirmar que el WhatsApp, dirección e Instagram/Facebook de Instagram siguen vigentes.

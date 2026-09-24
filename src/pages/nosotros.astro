@@ -1,0 +1,238 @@
+---
+// Copy generada por encargo del cliente (2026-09-24), a falta de un texto propio de la academia.
+// Evita a propósito cualquier dato verificable no confirmado: año de fundación, cifras de alumnos,
+// certificaciones o nombres de instructoras/es distintos a la directora (único dato confirmado).
+// Reemplazar por el texto real de la academia en cuanto esté disponible (ver docs/SITEMAP.md).
+import Page from '../layouts/Page.astro';
+import { CONTACT } from '../lib/contact';
+
+const values = [
+  {
+    icon: '🎨',
+    title: 'Arte',
+    text: 'Danza, teatro, dibujo y pintura son formas distintas de expresión. Las exploramos todas con la misma seriedad.',
+  },
+  {
+    icon: '🩰',
+    title: 'Disciplina',
+    text: 'La técnica se construye paso a paso. Cuidamos la postura, el ritmo y la constancia en cada clase.',
+  },
+  {
+    icon: '📅',
+    title: 'Constancia',
+    text: 'Los resultados llegan con el tiempo. Acompañamos a cada alumna y alumno en su propio proceso.',
+  },
+];
+---
+
+<Page title="Nosotros — Spazio Centro Artístico" description="Conoce Spazio Centro Artístico: nuestra filosofía, nuestros valores y quién dirige la academia.">
+  <main>
+    <section class="intro" data-reveal>
+      <h1>Nosotros</h1>
+      <p>
+        Spazio Centro Artístico nace de una convicción simple: que el arte se aprende mejor cuando se vive
+        con disciplina y se sostiene con constancia. Reunimos ballet, danza contemporánea, ritmos latinos y
+        talleres de artes plásticas y teatro bajo un mismo techo, para acompañar a nuestras alumnas y
+        alumnos desde los primeros pasos hasta un nivel juvenil.
+      </p>
+      <p>
+        Para nosotros, la danza y las artes no son solo una actividad extracurricular: son una forma de
+        construir carácter, cuerpo y comunidad. Cada clase combina técnica con creatividad, y cada alumna y
+        alumno avanza a su propio ritmo.
+      </p>
+    </section>
+
+    <section class="section" aria-labelledby="values-heading">
+      <h2 id="values-heading">Nuestros valores</h2>
+      <div class="values" data-reveal-group>
+        {
+          values.map((v) => (
+            <article class="value-card">
+              <span class="icon" aria-hidden="true">
+                {v.icon}
+              </span>
+              <h3>{v.title}</h3>
+              <p>{v.text}</p>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="section director" data-reveal aria-labelledby="director-heading">
+      <img class="mark" src="/brand/spazio-isotipo-color.svg" alt="" width="200" height="200" aria-hidden="true" />
+      <div>
+        <h2 id="director-heading">Nuestra directora</h2>
+        <p>
+          Angeles Méndez, Licenciada en Danza, dirige Spazio Centro Artístico. Bajo su guía, la academia se
+          enfoca en formar bases técnicas sólidas sin perder de vista el disfrute del arte.
+        </p>
+        <p>
+          Cada disciplina la imparte una instructora o instructor especializado en esa área. Si quieres
+          conocer más sobre quién da la clase que te interesa,{' '}
+          <a href={CONTACT.whatsappHref} target="_blank" rel="noopener noreferrer">escríbenos por WhatsApp</a>.
+        </p>
+      </div>
+    </section>
+
+    <section class="cta-band" data-reveal>
+      <h2>Ven a conocernos</h2>
+      <p>{CONTACT.address}</p>
+      <a class="btn btn-primary" href={CONTACT.whatsappHref} target="_blank" rel="noopener noreferrer">
+        Escríbenos por WhatsApp
+      </a>
+    </section>
+  </main>
+</Page>
+
+<style>
+  .intro {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 3.5rem) clamp(1rem, 4vw, 2.5rem) clamp(1.5rem, 4vw, 2rem);
+    text-align: center;
+  }
+
+  .intro h1 {
+    color: var(--color-morado);
+    margin: 0 0 1rem;
+    font-size: clamp(1.9rem, 4vw, 2.5rem);
+  }
+
+  .intro p {
+    margin: 0 0 1rem;
+    color: color-mix(in srgb, var(--color-tinta) 75%, white);
+    line-height: 1.7;
+    text-align: left;
+  }
+
+  .intro p:last-child {
+    margin-bottom: 0;
+  }
+
+  .section {
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 4rem) clamp(1rem, 4vw, 2.5rem);
+  }
+
+  .section h2 {
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    color: var(--color-morado);
+    margin: 0 0 1.5rem;
+    text-align: center;
+  }
+
+  .values {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 1rem;
+  }
+
+  .value-card {
+    padding: 1.75rem 1.5rem;
+    border-radius: 1rem;
+    background: var(--color-niebla);
+    text-align: center;
+  }
+
+  .value-card .icon {
+    font-size: 2rem;
+  }
+
+  .value-card h3 {
+    font-family: var(--font-display);
+    color: var(--color-morado);
+    margin: 0.5rem 0 0.5rem;
+    font-size: 1.1rem;
+  }
+
+  .value-card p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: color-mix(in srgb, var(--color-tinta) 75%, white);
+    line-height: 1.6;
+  }
+
+  .director {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  .director .mark {
+    width: clamp(5rem, 12vw, 7rem);
+    height: auto;
+  }
+
+  .director h2 {
+    text-align: left;
+    margin: 0 0 0.75rem;
+  }
+
+  .director p {
+    margin: 0 0 0.75rem;
+    color: color-mix(in srgb, var(--color-tinta) 75%, white);
+    line-height: 1.7;
+  }
+
+  .director p:last-child {
+    margin-bottom: 0;
+  }
+
+  .director a {
+    color: var(--color-magenta);
+    font-weight: 600;
+  }
+
+  @media (max-width: 32rem) {
+    .director {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    .director .mark {
+      justify-self: center;
+    }
+
+    .director h2 {
+      text-align: center;
+    }
+  }
+
+  .cta-band {
+    background: var(--color-niebla);
+    text-align: center;
+    padding: clamp(2.5rem, 6vw, 4rem) 1.5rem;
+  }
+
+  .cta-band h2 {
+    margin: 0 0 0.5rem;
+    color: var(--color-morado);
+  }
+
+  .cta-band p {
+    margin: 0 0 1.25rem;
+    color: color-mix(in srgb, var(--color-tinta) 70%, white);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.95rem;
+  }
+
+  .btn-primary {
+    background: var(--color-magenta);
+    color: var(--color-papel);
+  }
+
+  .btn-primary:hover {
+    background: var(--color-morado);
+  }
+</style>
