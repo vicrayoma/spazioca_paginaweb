@@ -1,0 +1,139 @@
+---
+import Page from '../layouts/Page.astro';
+import { getSchedule, groupByDiscipline, groupByCategory } from '../lib/schedule';
+import { whatsappHrefWithText } from '../lib/contact';
+
+const schedule = await getSchedule();
+const categories = groupByCategory(groupByDiscipline(schedule));
+---
+
+<Page title="Disciplinas — Spazio Centro Artístico" description="Ballet, contemporáneo, ritmos latinos y talleres artísticos en Spazio Centro Artístico, Huejotzingo.">
+  <main>
+    <section class="intro" data-reveal>
+      <h1>Disciplinas</h1>
+      <p>Cada clase muestra los días y el horario en los que se imparte hoy. Consulta el horario completo en la página de <a href="/horarios">horarios</a>.</p>
+    </section>
+
+    {
+      [...categories.entries()].map(([category, disciplines]) => (
+        <section class="category" aria-labelledby={`cat-${category}`}>
+          <h2 id={`cat-${category}`}>{category}</h2>
+          <div class="grid" data-reveal-group>
+            {disciplines.map((d) => (
+              <article class="card">
+                <span class="icon" aria-hidden="true">
+                  {d.icon}
+                </span>
+                <h3>{d.name}</h3>
+                <ul class="slots">
+                  {d.slots.map((slot) => (
+                    <li>
+                      <strong>{slot.day}</strong> · {slot.time}
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  class="ask"
+                  href={whatsappHrefWithText(`Hola, quisiera más información sobre ${d.name.toLowerCase()}.`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Preguntar por esta clase
+                </a>
+              </article>
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </main>
+</Page>
+
+<style>
+  .intro {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 3.5rem) clamp(1rem, 4vw, 2.5rem) clamp(1.5rem, 4vw, 2rem);
+    text-align: center;
+  }
+
+  .intro h1 {
+    color: var(--color-morado);
+    margin: 0 0 0.75rem;
+    font-size: clamp(1.9rem, 4vw, 2.5rem);
+  }
+
+  .intro p {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-tinta) 75%, white);
+  }
+
+  .intro a {
+    color: var(--color-magenta);
+  }
+
+  .category {
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: 1.5rem clamp(1rem, 4vw, 2.5rem);
+  }
+
+  .category h2 {
+    font-size: 1.3rem;
+    color: var(--color-magenta);
+    margin: 0 0 1rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1rem;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.25rem;
+    border-radius: 1rem;
+    background: var(--color-niebla);
+  }
+
+  .card .icon {
+    font-size: 1.6rem;
+  }
+
+  .card h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--color-morado);
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+  }
+
+  .slots {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+    color: color-mix(in srgb, var(--color-tinta) 75%, white);
+  }
+
+  .ask {
+    margin-top: 0.25rem;
+    align-self: flex-start;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-magenta);
+    text-decoration: none;
+  }
+
+  .ask:hover {
+    text-decoration: underline;
+  }
+</style>
