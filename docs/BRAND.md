@@ -45,7 +45,8 @@ Valores medidos del logo RGB para pantalla:
 - **Wordmark "SPAZIO"**: dibujo a medida (geométrico, ancho, A sin travesaño). Siempre como SVG, nunca con una fuente.
 - **"CENTRO ARTÍSTICO"**: sans geométrica tipo Futura, en mayúsculas con mucho espaciado.
 - **Texto web (provisional):** Jost, alternativa libre a Futura, autoalojada.
-- **Titulares:** por definir en la fase de diseño (candidatas: Unbounded o Syne).
+- **Titulares (decidido 2026-09-24):** Unbounded, geométrica y ancha, cercana en peso al wordmark.
+  Autoalojada vía `@fontsource-variable/unbounded`, token `--font-display` en `src/styles/global.css`.
 
 ## Movimiento
 

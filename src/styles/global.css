@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import '@fontsource-variable/jost';
+@import '@fontsource-variable/unbounded';
 
 /*
  * Tokens de marca de Spazio Centro Artístico.
@@ -16,8 +17,7 @@
   --color-niebla: #f6f2f9;
 
   --font-sans: 'Jost Variable', 'Jost', ui-sans-serif, system-ui, sans-serif;
-  /* Tipografía de titulares: pendiente de definir en la fase de diseño. */
-  --font-display: var(--font-sans);
+  --font-display: 'Unbounded Variable', 'Unbounded', var(--font-sans);
 
   --ease-spazio: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -35,6 +35,14 @@
     font-family: var(--font-sans);
     line-height: 1.6;
     text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.01em;
   }
 
   :focus-visible {

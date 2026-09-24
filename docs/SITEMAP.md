@@ -73,7 +73,7 @@ editorial no — no se debe inventar el enfoque pedagógico de cada clase).
 
 ## Pendientes para poder avanzar a fase 3
 
-1. Tipografía de titulares — comparación mostrada en el chat, falta elegir una.
+1. ~~Tipografía de titulares~~ — decidido: Unbounded (ver `docs/BRAND.md`).
 2. Texto real de "Por qué Spazio" y de "Nosotros" (historia, filosofía).
 3. Lista de precios vigente.
 4. Fotos/video propios (al menos una tanda inicial para no lanzar con espacios vacíos).
