@@ -14,11 +14,16 @@ gsap.registerPlugin(ScrollTrigger);
 
 if (!prefersReducedMotion) {
   // Hero: las formas geométricas se ensamblan al cargar (el hilo visual del isotipo, ver docs/BRAND.md).
+  // Cada forma define su propia opacidad final en CSS (son un tinte de fondo sutil, no bloques sólidos);
+  // se captura antes de que gsap.set la sobreescriba, para no terminar animando siempre a opacity:1.
   const heroShapes = document.querySelectorAll<HTMLElement>('[data-hero-shape]');
   if (heroShapes.length) {
+    const finalOpacity = new Map<HTMLElement, string>(
+      Array.from(heroShapes, (el) => [el, getComputedStyle(el).opacity]),
+    );
     gsap.set(heroShapes, { opacity: 0, scale: 0.5, rotate: (i) => (i % 2 === 0 ? -14 : 14) });
     gsap.to(heroShapes, {
-      opacity: 1,
+      opacity: (_i, target: HTMLElement) => finalOpacity.get(target) ?? '1',
       scale: 1,
       rotate: 0,
       duration: 1.1,
