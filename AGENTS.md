@@ -1,6 +1,6 @@
 # Spazio Centro Artístico — guía del proyecto
 
-Sitio web de una academia de danza (Huejotzingo, Puebla). Astro estático + Tailwind v4 + GSAP/Lenis, en Cloudflare Pages.
+Sitio web de una academia de danza (Huejotzingo, Puebla). Astro estático + Tailwind v4 + GSAP/ScrollTrigger, en Cloudflare Pages.
 Contexto: [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md) · marca: [docs/BRAND.md](docs/BRAND.md) · CRM y dominio: [docs/CRM-DOMINIO.md](docs/CRM-DOMINIO.md).
 
 ## Convenciones

@@ -5,7 +5,7 @@ Sitio web de **Spazio Centro Artístico**, academia de danza y artes en Huejotzi
 
 ## Stack
 
-Astro · TypeScript · Tailwind CSS v4 · GSAP · Lenis · Cloudflare Pages.
+Astro · TypeScript · Tailwind CSS v4 · GSAP/ScrollTrigger · Cloudflare Pages.
 Decisiones y fases en [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md); identidad en [`docs/BRAND.md`](docs/BRAND.md).
 
 ## Desarrollo

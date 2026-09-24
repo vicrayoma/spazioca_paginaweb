@@ -2,14 +2,20 @@
 
 ## Decisión
 
-**Astro (sitio estático) + TypeScript + Tailwind v4 + GSAP/Lenis**, desplegado en **Cloudflare Pages**, con una
+**Astro (sitio estático) + TypeScript + Tailwind v4 + GSAP/ScrollTrigger**, desplegado en **Cloudflare Pages**, con una
 capa mínima de funciones (Pages Functions) para formularios y CRM.
 
 ## Por qué
 
 - **Superficie de ataque mínima:** el sitio público es HTML, CSS y JS estáticos. Sin servidor de aplicación ni base de datos expuesta.
 - **Rendimiento y SEO local:** páginas pre-renderizadas, fuentes autoalojadas, imágenes optimizadas.
-- **Animación con control total:** GSAP + ScrollTrigger sobre SVG del isotipo, con Lenis para scroll fluido.
+- **Animación con control total:** GSAP + ScrollTrigger sobre scroll nativo (`scroll-behavior: smooth`).
+  Se probó Lenis (scroll suave) en la fase 3 y se descartó: entra en conflicto con la cabecera
+  `position: sticky` (fricción documentada entre ambos), y ScrollTrigger funciona igual de bien sin él.
+  El isotipo real (`public/brand/spazio-isotipo-*.svg`, con máscaras y raster de degradado del PDF
+  original) se muestra tal cual y solo recibe una entrada de conjunto (fade/scale); las formas que se
+  "ensamblan" en el hero y como acento en otras secciones son geometría propia (cuartos de círculo, punto)
+  que hace eco del isotipo sin decomponer sus paths reales, que son frágiles de animar por partes.
 - **Cloudflare:** CDN, WAF y anti-DDoS incluidos, Turnstile para formularios, secretos fuera del repo.
 
 Alternativas descartadas: WordPress (superficie de plugins y temas), Next.js (servidor y componentes de servidor innecesarios para un sitio de marketing), constructores tipo Wix/Webflow/Framer (menos control de seguridad e integración con el CRM).
@@ -18,14 +24,17 @@ Alternativas descartadas: WordPress (superficie de plugins y temas), Next.js (se
 
 ```
 src/
-  layouts/     Base.astro (meta, SEO, robots según entorno)
-  pages/       rutas del sitio
+  layouts/     Base.astro (meta/SEO/robots) + Page.astro (Header + slot + Footer + motion.ts)
+  components/  Header.astro, Footer.astro
+  pages/       index.astro, disciplinas.astro, horarios.astro (rutas del sitio)
+  lib/         schedule.ts (lee/agrupa el horario), contact.ts (WhatsApp, dirección, redes)
+  scripts/     motion.ts (GSAP/ScrollTrigger: entradas, revelado al scroll, "hoy" del horario)
   styles/      global.css (tokens de marca)
-  content/     (próximo) disciplinas, horarios, eventos como colecciones tipadas
+  content/     schedule/general.json (horario real) + content.config.ts (esquema Zod)
 public/
   brand/       logos SVG; iconos; _headers (CSP y seguridad)
 functions/     (próximo) endpoints de contacto → CRM
-docs/          BRAND.md, ARQUITECTURA.md, CRM-DOMINIO.md
+docs/          BRAND.md, ARQUITECTURA.md, SITEMAP.md, CRM-DOMINIO.md
 ```
 
 ## Seguridad
@@ -39,15 +48,19 @@ docs/          BRAND.md, ARQUITECTURA.md, CRM-DOMINIO.md
 
 ## Contenido editable
 
-El horario general se edita hoy en un tablero (Artifact) que exporta los cambios. Plan: el export será un JSON
-validado con un esquema (Zod) en `src/content/`, y al confirmarlo en el repo se publica automáticamente.
+El horario general se edita hoy en un tablero (Artifact) que exporta los cambios. Ya se integró como
+`src/content/schedule/general.json`, validado con un esquema Zod (`src/content.config.ts`) — Disciplinas,
+Horarios e Inicio se generan a partir de ese archivo, no de texto suelto en las páginas. Cuando el tablero
+cambie, se vuelve a leer el Artifact y se actualiza ese JSON a mano; no hay automatización todavía.
 Si más adelante se requiere edición sin pasar por git, se añade un CMS (Keystatic o Sanity).
 
 ## Fases
 
-1. **Cimientos** (esta): repo, scaffold, marca, seguridad, CI.
-2. **Diseño y contenido:** mapa del sitio, wireframes, sistema tipográfico, manual de marca.
-3. **Construcción y animaciones** por secciones, con el isotipo reconstruido como SVG animable.
-4. **Formularios, WhatsApp y CRM.**
+1. **Cimientos** ✅: repo, scaffold, marca, seguridad, CI.
+2. **Diseño y contenido** ✅ para Inicio/Disciplinas/Horarios: mapa del sitio (`SITEMAP.md`), tipografía
+   (Unbounded), horario real integrado. Nosotros/Galería/Contacto siguen esperando contenido real.
+3. **Construcción y animaciones** — en curso: Inicio, Disciplinas y Horarios construidas con GSAP/ScrollTrigger.
+   Falta Nosotros, Galería y Contacto (bloqueadas por contenido, ver `SITEMAP.md`).
+4. **Formularios, WhatsApp y CRM.** WhatsApp ya es el CTA de contacto en todo el sitio construido.
 5. **SEO local, analítica y lanzamiento** en el dominio definitivo (ver `CRM-DOMINIO.md`).
 6. **CMS** y, si se requiere, portal de alumnos como app separada en un subdominio.

@@ -1,7 +1,8 @@
 # Mapa del sitio y plan de contenido
 
-Fase 2. Este documento es la fuente de verdad de qué lleva cada página y qué falta por confirmar antes
-de construirla (fase 3). Se actualiza a medida que llega contenido real.
+Fuente de verdad de qué lleva cada página y qué falta por confirmar. Se actualiza a medida que llega
+contenido real. **Inicio, Disciplinas y Horarios ya están construidas** (fase 3 arrancada para esas tres,
+2026-09-24); Nosotros, Galería y Contacto siguen en fase 2 (contenido pendiente).
 
 ## Páginas
 
@@ -14,42 +15,50 @@ de construirla (fase 3). Se actualiza a medida que llega contenido real.
 /contacto            Ubicación, WhatsApp, formulario de inscripción/prospecto
 ```
 
-Seis páginas, navegación plana (sin submenús). En móvil, menú hamburguesa; en escritorio, barra fija que
-se comprime al hacer scroll (una de las animaciones "firma" del sitio, ver `docs/BRAND.md`).
+Seis páginas, navegación plana (sin submenús). El menú de `Header.astro` hoy solo enlaza Inicio, Disciplinas
+y Horarios (las tres páginas que existen); Nosotros, Galería y Contacto se agregan al menú cuando se
+construyan, para no dejar enlaces rotos. Mientras tanto, WhatsApp es el CTA de contacto en toda la web.
 
-## Inicio (`/`)
+## Inicio (`/`) — ✅ construida
 
 | Sección | Contenido | Estado |
 |---|---|---|
-| Hero | Isotipo animado (las formas se ensamblan), lema "Arte, disciplina y constancia", CTA a WhatsApp y a Horarios | ✅ listo (marca + copy) |
-| Disciplinas (resumen) | 4-6 tarjetas con las disciplinas más buscadas, enlazan a `/disciplinas` | ✅ listo (de `src/content/schedule`) |
-| Por qué Spazio | 3-4 puntos cortos (instructoras certificadas, grupos por edad, ambiente familiar...) | ⏳ falta texto real, no inventar |
-| Horario destacado | Vista compacta de "hoy/mañana", enlaza a `/horarios` | ✅ listo (dato real) |
-| Testimonios | Citas de alumnos/tutores | ⏳ falta (si no hay, se omite esta sección) |
-| CTA final | WhatsApp + dirección + mapa | ✅ listo (dato real de Instagram, confirmar vigente) |
+| Hero | Formas geométricas que se ensamblan al cargar (GSAP), logo, lema, CTA a WhatsApp y a Horarios | ✅ construido |
+| Por qué Spazio | 4 puntos factuales derivados del horario real (rango de edades, disciplinas, días, clases particulares) — no son marketing inventado | ✅ construido |
+| Disciplinas (resumen) | Tarjetas por categoría con conteo real de clases, enlazan a `/disciplinas` | ✅ construido (de `src/content/schedule`) |
+| Testimonios | Citas de alumnos/tutores | ⏳ omitida — falta contenido, no se inventa |
+| CTA final | WhatsApp + dirección (sin mapa embebido, por ahora solo texto) | ✅ construido (dato real de Instagram, confirmar vigente) |
 
-## Disciplinas (`/disciplinas`)
+No se construyó el widget "hoy/mañana" que planeaba la primera versión de este documento: en su lugar,
+el resaltado de "hoy" se implementó en la tabla de `/horarios` (columna del día actual), que es donde
+aporta más.
 
-Una ficha por disciplina, agrupadas por categoría. **Lista real** (extraída del horario, `src/content/schedule/general.json`):
+## Disciplinas (`/disciplinas`) — ✅ construida
+
+Una tarjeta por clase (no por ficha individual con foto/descripción larga), agrupadas por categoría,
+generadas directamente de `src/content/schedule/general.json` vía `src/lib/schedule.ts` — sin datos
+inventados. Cada tarjeta muestra: ícono, nombre, días y horario reales, y un enlace de WhatsApp
+prellenado para preguntar por esa clase.
 
 - **Ballet:** Baby Ballet, Ballet Infantil Principiante, Ballet Juvenil Intermedio
-- **Contemporáneo / urbano:** Contemporáneo Infantil, Contemporáneo Juvenil, Contempo-Urbano Infantil, Contempo-Urbano Juvenil
+- **Contemporáneo y urbano:** Contemporáneo Infantil, Contemporáneo Juvenil, Contempo-Urbano Infantil, Contempo-Urbano Juvenil
 - **Ritmos latinos:** Salsa Básico, Salsa Taller, Cumbia Básico, Cumbia Taller, Bachata Nivel Abierto
-- **Talleres:** Teatro Musical, Dibujo y Pintura
-- **Clase particular** (con previa cita)
+- **Talleres artísticos:** Teatro Musical, Dibujo y Pintura
+- **Clases particulares** (con previa cita)
 
-Cada ficha necesita: edad recomendada, nivel, una foto o video corto, 2-3 líneas de descripción.
-**Falta:** fotos/video propios y las descripciones (el nombre y el horario ya están, la descripción
-editorial no — no se debe inventar el enfoque pedagógico de cada clase).
+**Pendiente para enriquecerla** (no bloquea, la página ya funciona sin esto): edad recomendada, nivel,
+una foto o video corto y 2-3 líneas de descripción por disciplina — no se inventa el enfoque pedagógico.
 
-## Horarios y tarifas (`/horarios`)
+## Horarios (`/horarios`) — ✅ construida
 
-- Tabla del horario general: **lista, dato real**, ya integrada en `src/content/schedule/general.json`
-  (27 sesiones, 6 días). Se actualiza a mano cuando cambie el tablero (Artifact) hasta que haya
-  automatización.
-- Tarifas: **falta.** Solo hay una promoción puntual de septiembre ("inscripción gratis + $350/mes") que
-  no sirve como precio estable para la web. Se necesita una lista de precios vigente por disciplina/paquete
-  o un solo precio mensual, y si varía por edad o por número de clases.
+- Tabla completa del horario general en CSS Grid (con "rowspan" real para las clases de 2 horas), fondos
+  y colores por categoría, y la columna del día actual resaltada según la fecha del visitante.
+  Fuente: `src/content/schedule/general.json` (27 sesiones, 6 días) vía `src/lib/schedule.ts`.
+  Se actualiza a mano cuando cambie el tablero (Artifact) hasta que haya automatización.
+- Tarifas: **no están en esta página todavía.** Solo hay una promoción puntual de septiembre
+  ("inscripción gratis + $350/mes") que no sirve como precio estable para la web. Se necesita una lista
+  de precios vigente por disciplina/paquete o un solo precio mensual, y si varía por edad o por número
+  de clases.
 
 ## Nosotros (`/nosotros`)
 
