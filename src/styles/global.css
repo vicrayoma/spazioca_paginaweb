@@ -16,6 +16,11 @@
   --color-papel: #ffffff;
   --color-niebla: #f6f2f9;
 
+  /* Funcionales: solo para distinguir categorías en el horario. No son colores de marca. */
+  --color-horario-verde: #16733f;
+  --color-horario-rojo: #c4283a;
+  --color-horario-naranja: #f4821f;
+
   --font-sans: 'Jost Variable', 'Jost', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Unbounded Variable', 'Unbounded', var(--font-sans);
 
@@ -26,6 +31,7 @@
   html {
     color-scheme: light;
     -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
   }
 
   body {

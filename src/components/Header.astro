@@ -1,0 +1,106 @@
+---
+import { CONTACT } from '../lib/contact';
+
+const links = [
+  { href: '/disciplinas', label: 'Disciplinas' },
+  { href: '/horarios', label: 'Horarios' },
+];
+---
+
+<header class="header">
+  <a class="brand" href="/" aria-label="Spazio Centro Artístico, ir al inicio">
+    <img src="/brand/spazio-horizontal-color.svg" alt="" width="642" height="198" />
+  </a>
+  <nav class="nav" aria-label="Principal">
+    <ul>
+      {
+        links.map((link) => (
+          <li>
+            <a href={link.href}>{link.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+  <a class="cta" href={CONTACT.whatsappHref} target="_blank" rel="noopener noreferrer">
+    WhatsApp
+  </a>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem clamp(0.75rem, 3vw, 2rem);
+    padding: 0.75rem clamp(1rem, 4vw, 2.5rem);
+    background: color-mix(in srgb, var(--color-papel) 92%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-morado) 10%, transparent);
+  }
+
+  .brand img {
+    display: block;
+    height: clamp(2rem, 5vw, 2.5rem);
+    width: auto;
+  }
+
+  .nav {
+    margin-left: auto;
+  }
+
+  .nav ul {
+    display: flex;
+    gap: clamp(1rem, 3vw, 2rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav a {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: var(--color-tinta);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .nav a:hover {
+    color: var(--color-magenta);
+  }
+
+  .cta {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    background: var(--color-magenta);
+    color: var(--color-papel);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .cta:hover {
+    background: var(--color-morado);
+  }
+
+  @media (max-width: 26rem) {
+    .nav {
+      order: 3;
+      margin-left: 0;
+      width: 100%;
+    }
+
+    .nav ul {
+      justify-content: center;
+      gap: 1.25rem;
+    }
+  }
+</style>
