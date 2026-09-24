@@ -63,4 +63,6 @@ Si más adelante se requiere edición sin pasar por git, se añade un CMS (Keyst
    Falta Nosotros, Galería y Contacto (bloqueadas por contenido, ver `SITEMAP.md`).
 4. **Formularios, WhatsApp y CRM.** WhatsApp ya es el CTA de contacto en todo el sitio construido.
 5. **SEO local, analítica y lanzamiento** en el dominio definitivo (ver `CRM-DOMINIO.md`).
-6. **CMS** y, si se requiere, portal de alumnos como app separada en un subdominio.
+6. **CMS**, si se requiere, y el **portal de alumnos** (adelantado a pedido del cliente, 2026-09-24) —
+   app aparte en un subdominio, con video vía Cloudflare Stream y accesos gestionados desde el CRM.
+   Plan completo en `docs/PORTAL-ALUMNOS.md`.
