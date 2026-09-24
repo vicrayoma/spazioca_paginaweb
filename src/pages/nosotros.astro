@@ -6,6 +6,17 @@
 import Page from '../layouts/Page.astro';
 import { CONTACT } from '../lib/contact';
 
+const missionVision = [
+  {
+    label: 'Misión',
+    text: 'Acompañar a niñas, niños, jóvenes y adultos en su desarrollo artístico y personal, a través de una enseñanza técnica sólida en danza y artes, dentro de un ambiente disciplinado, constante y cercano.',
+  },
+  {
+    label: 'Visión',
+    text: 'Ser reconocidos como un espacio de referencia para el arte y la danza en Huejotzingo, donde cada alumna y alumno encuentre no solo técnica, sino una comunidad que impulse su disciplina, su creatividad y su constancia.',
+  },
+];
+
 const values = [
   {
     icon: '🎨',
@@ -40,6 +51,20 @@ const values = [
         construir carácter, cuerpo y comunidad. Cada clase combina técnica con creatividad, y cada alumna y
         alumno avanza a su propio ritmo.
       </p>
+    </section>
+
+    <section class="section" aria-labelledby="mv-heading">
+      <h2 id="mv-heading">Misión y visión</h2>
+      <div class="mv-grid" data-reveal-group>
+        {
+          missionVision.map((mv) => (
+            <article class="mv-card">
+              <h3>{mv.label}</h3>
+              <p>{mv.text}</p>
+            </article>
+          ))
+        }
+      </div>
     </section>
 
     <section class="section" aria-labelledby="values-heading">
@@ -121,6 +146,46 @@ const values = [
     color: var(--color-morado);
     margin: 0 0 1.5rem;
     text-align: center;
+  }
+
+  .mv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1rem;
+  }
+
+  .mv-card {
+    padding: 2rem 1.75rem;
+    border-radius: 1rem;
+    background: var(--color-niebla);
+  }
+
+  .mv-card h3 {
+    font-family: var(--font-display);
+    margin: 0 0 0.75rem;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-morado);
+  }
+
+  .mv-card p {
+    margin: 0;
+    line-height: 1.7;
+    font-size: 0.95rem;
+    color: color-mix(in srgb, var(--color-tinta) 75%, white);
+  }
+
+  .mv-card:first-child {
+    background: var(--color-morado);
+  }
+
+  .mv-card:first-child h3 {
+    color: var(--color-papel);
+  }
+
+  .mv-card:first-child p {
+    color: color-mix(in srgb, var(--color-papel) 88%, transparent);
   }
 
   .values {
