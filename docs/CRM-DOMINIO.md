@@ -61,7 +61,15 @@ cifrar en la base de datos. Ninguno depende de este repositorio; los resuelve qu
 5. 🟡 **Parcial (2026-09-25).** `alumnos.spaziocentroartistico.com` ya apunta al Worker del portal de
    alumnos (dominio personalizado agregado directo en Cloudflare, ahora que la zona vive ahí — ya no
    hizo falta el CNAME parcial que se había descartado antes). Cloudflare emitió el certificado
-   automáticamente en unos minutos. Verificado con el login real del portal cargando en el subdominio.
+   automáticamente en unos minutos. Verificado con el login real del portal cargando en el subdominio,
+   confirmado también por el cliente en su propia máquina.
+
+   **Nota (DNS_PROBE_FINISHED_NXDOMAIN temporal):** justo después de crear un subdominio nuevo, el
+   resolver DNS del ISP/router de quien lo visite puede tardar en dejar de responder "no existe" —
+   quedó en caché de antes de que el registro existiera. `ipconfig /flushdns` no lo arregla (esa caché
+   es del router/ISP, no de Windows); cambiar el DNS de la red a uno público (`1.1.1.1` /  `8.8.8.8`)
+   sí, porque salta esa caché. Se resuelve solo con el tiempo para el resto de la gente. Aplica a
+   cualquier subdominio nuevo, no solo a `alumnos`.
    Falta la otra mitad: apuntar el apex y `www` a Cloudflare Pages (la web pública) — hoy siguen
    sirviendo el CRM directo, sin cambios.
 6. Si hace falta preservar enlaces antiguos, redirecciones 301 desde el apex hacia `crm.`.
