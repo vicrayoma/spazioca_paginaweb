@@ -58,7 +58,12 @@ cifrar en la base de datos. Ninguno depende de este repositorio; los resuelve qu
    Render, evita el loop de redirección típico del modo "Flexible" por defecto). Verificado tras
    propagar: `www`, apex y `crm` responden igual que antes (302/301 esperados) y MX/SPF/DMARC intactos —
    nada de correo ni del CRM se interrumpió.
-5. ⬜ Apuntar el apex y `www` a Cloudflare Pages (la web) y `alumnos` al Worker del portal de alumnos.
+5. 🟡 **Parcial (2026-09-25).** `alumnos.spaziocentroartistico.com` ya apunta al Worker del portal de
+   alumnos (dominio personalizado agregado directo en Cloudflare, ahora que la zona vive ahí — ya no
+   hizo falta el CNAME parcial que se había descartado antes). Cloudflare emitió el certificado
+   automáticamente en unos minutos. Verificado con el login real del portal cargando en el subdominio.
+   Falta la otra mitad: apuntar el apex y `www` a Cloudflare Pages (la web pública) — hoy siguen
+   sirviendo el CRM directo, sin cambios.
 6. Si hace falta preservar enlaces antiguos, redirecciones 301 desde el apex hacia `crm.`.
 
 La cookie de sesión del CRM no lleva atributo `Domain`, así que apex y subdominio quedan con sesiones

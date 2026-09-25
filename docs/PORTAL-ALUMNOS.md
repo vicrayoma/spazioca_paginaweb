@@ -80,9 +80,11 @@ se borra**. El despliegue real usa "Workers Builds" (el sucesor de Pages para in
   defecto para sesiones.
 
 **Pendiente:**
-- Decidir si se borra el proyecto de Pages roto (`portal-spazio.pages.dev`) para no dejar basura en
-  la cuenta de Cloudflare.
-- Apuntar `alumnos.spaziocentroartistico.com` a este Worker (dominio personalizado, DNS en GoDaddy).
+- ~~Decidir si se borra el proyecto de Pages roto~~ — hecho, se borró.
+- ~~Apuntar `alumnos.spaziocentroartistico.com` a este Worker~~ — hecho (2026-09-25): el dominio
+  completo se migró a Cloudflare (ver `docs/CRM-DOMINIO.md`), lo que permitió agregar
+  `alumnos.spaziocentroartistico.com` como dominio personalizado directo del Worker. Verificado en vivo
+  con el login real del portal.
 - Ver varios videos/disciplinas a la vez, no solo uno.
 
 ## Hallazgos de seguridad detectados al construir esto (no relacionados con el portal en sí)
