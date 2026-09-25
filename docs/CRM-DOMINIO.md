@@ -46,11 +46,18 @@ cifrar en la base de datos. Ninguno depende de este repositorio; los resuelve qu
    | TXT (SPF) | `@` | `v=spf1 include:spf.em.secureserver.net ?all` |
    | TXT (DMARC) | `_dmarc` | `v=DMARC1; p=quarantine; adkim=r; aspf=r; rua=mailto:dmarc_rua@onsecureserver.net;` |
 
-   Pendiente: confirmar directo en el panel de GoDaddy que esta lista está completa (por si hay algún
-   registro que no resuelve públicamente, p. ej. uno inactivo) antes del paso 4.
+   Al agregar el dominio a Cloudflare (paso 4) su escaneo automático encontró un registro más que no
+   estaba en esta tabla: `CNAME _domainconnect` → `_domainconnect.gd.domaincontrol.com` (servicio propio
+   de GoDaddy para autoconfiguración de apps de terceros; inofensivo, se dejó igual).
 3. ⬜ Validar el CRM funcionando por completo en el subdominio (login real, permisos, pagos,
-   mensualidades, WhatsApp, kiosko) — probado solo que carga, falta el resto.
-4. ⬜ Mover los nameservers a Cloudflare, con los registros ya copiados.
+   mensualidades, WhatsApp, kiosko) — solo se probó que carga. El cliente decidió avanzar al paso 4 sin
+   completar esta validación explícitamente; queda pendiente confirmarla.
+4. ✅ **Hecho (2026-09-25).** Nameservers movidos a Cloudflare (`jerry.ns.cloudflare.com` /
+   `ziggy.ns.cloudflare.com`, antes `ns01`/`ns02.domaincontrol.com`). Cloudflare importó los registros
+   automáticamente (coinciden con la tabla de arriba) y quedó en modo SSL/TLS **Full** (compatible con
+   Render, evita el loop de redirección típico del modo "Flexible" por defecto). Verificado tras
+   propagar: `www`, apex y `crm` responden igual que antes (302/301 esperados) y MX/SPF/DMARC intactos —
+   nada de correo ni del CRM se interrumpió.
 5. ⬜ Apuntar el apex y `www` a Cloudflare Pages (la web) y `alumnos` al Worker del portal de alumnos.
 6. Si hace falta preservar enlaces antiguos, redirecciones 301 desde el apex hacia `crm.`.
 
