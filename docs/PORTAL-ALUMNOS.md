@@ -57,11 +57,32 @@ Functions). Tres páginas:
 error correcto con credenciales inválidas, redirección sin sesión, y el video real reproduciéndose para
 Victoria tras iniciar sesión con su contraseña real.
 
+### 4. Despliegue — ✅ en producción (Cloudflare Workers, no Pages)
+
+Repo subido a GitHub (`github.com/vicrayoma/portal_spazio`, privado). Desplegado en
+`https://portal-spazio.vicrayoma.workers.dev`, probado en vivo (pantalla de login real, rechazo
+correcto con credenciales inválidas).
+
+**Hallazgo importante:** `@astrojs/cloudflare` v14 dejó de soportar Cloudflare Pages — genera un
+Worker con assets (`dist/client` + `dist/server/entry.mjs` + un `wrangler.json` propio), no el
+`_worker.js` que el flujo clásico de Pages espera. Un primer intento de desplegar como proyecto de
+Pages (`portal-spazio.pages.dev`) solo subió los archivos como estáticos sueltos, sin correr nunca
+el servidor (404 en toda ruta) — **ese proyecto de Pages quedó roto y sin uso, pendiente decidir si
+se borra**. El despliegue real usa "Workers Builds" (el sucesor de Pages para integración con Git):
+
+- `wrangler.jsonc` en la raíz del repo identifica el Worker ante Workers Builds.
+- Comando de build: `npm run build`. Comando de deploy: `npx wrangler deploy --config
+  dist/server/wrangler.json --var CRM_API_URL:https://www.spaziocentroartistico.com` — el `--var` es
+  necesario porque el `wrangler.json` que genera cada build no declara variables por sí solo; sin él,
+  cada push a `main` borraría `CRM_API_URL` del Worker desplegado.
+- `session: false` en `astro.config.mjs`: el portal no usa `Astro.session` (la sesión es la cookie
+  propia con el token del CRM), así que se desactivó el binding de KV que el adaptador provisiona por
+  defecto para sesiones.
+
 **Pendiente:**
-- Subir el repo `portal_spazio` a GitHub (decidir público o privado — se recomienda **privado**, es una
-  app con autenticación, no contenido de marketing).
-- Crear el proyecto en Cloudflare Pages, configurar `CRM_API_URL` ahí, y apuntar
-  `alumnos.spaziocentroartistico.com`.
+- Decidir si se borra el proyecto de Pages roto (`portal-spazio.pages.dev`) para no dejar basura en
+  la cuenta de Cloudflare.
+- Apuntar `alumnos.spaziocentroartistico.com` a este Worker (dominio personalizado, DNS en GoDaddy).
 - Ver varios videos/disciplinas a la vez, no solo uno.
 
 ## Hallazgos de seguridad detectados al construir esto (no relacionados con el portal en sí)
