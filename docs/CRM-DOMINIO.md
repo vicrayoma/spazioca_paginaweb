@@ -14,8 +14,9 @@ subdominio y el apex queda libre para la web pública.
 
 | Host | Sirve | Dónde |
 |---|---|---|
-| `spaziocentroartistico.com` y `www.` | Web pública (Astro) | Cloudflare Pages |
+| `spaziocentroartistico.com` y `www.` | Web pública (Astro) | Cloudflare Worker (no Pages — ver `docs/PORTAL-ALUMNOS.md`, el mismo hallazgo aplica aquí) |
 | `crm.spaziocentroartistico.com` | Sistema de gestión (uso interno) | Render (donde ya vive), con dominio personalizado nuevo |
+| `alumnos.spaziocentroartistico.com` | Portal de alumnos | Cloudflare Worker (`portal-spazio`) |
 
 ## Antes de migrar: seguridad del CRM
 
@@ -72,7 +73,38 @@ cifrar en la base de datos. Ninguno depende de este repositorio; los resuelve qu
    cualquier subdominio nuevo, no solo a `alumnos`.
    Falta la otra mitad: apuntar el apex y `www` a Cloudflare Pages (la web pública) — hoy siguen
    sirviendo el CRM directo, sin cambios.
+
+   **Actualización — hecho (2026-09-25).** Se completó la otra mitad. Repo `paginaweb_spazio` (sitio
+   estático) desplegado como Cloudflare Worker nuevo (`spazioca-paginaweb`, mismo hallazgo que el
+   portal: `@astrojs/cloudflare`/Workers Builds, no Pages), con `SITE_URL` como variable de build para
+   que el sitemap y las URLs canónicas usen el dominio real.
+
+   Al intentar agregar el apex y `www` como dominios personalizados de ese Worker, Cloudflare rechazó
+   la conversión porque ya tenían registros DNS activos (el A del apex y el CNAME de `www`, ambos hacia
+   Render) — se borraron esos dos registros (dejando intactos `crm`, `_domainconnect`, MX, SPF, DMARC),
+   y entonces sí se pudieron agregar como dominios del Worker.
+
+   **Hallazgo importante:** después de eso, `apex` y `www` seguían sirviendo el CRM de Render pese a
+   que el DNS, el certificado y la config de Cloudflare ya apuntaban al Worker nuevo. La causa: Render
+   había registrado esos dos hosts como "Custom Hostnames" en su propio sistema Cloudflare-for-SaaS
+   (cada uno con un certificado dedicado de un solo dominio, distinto al certificado de mi zona) —
+   Cloudflare hace ese emparejamiento por nombre exacto a nivel global, así que esa intercepta en el
+   borde antes de que la configuración de mi propia zona pueda aplicarse, sin importar qué tan bien
+   esté configurada. Se resolvió quitando `www.spaziocentroartistico.com` como dominio personalizado
+   del lado de Render (Settings del servicio `spazio-web-prod` → Custom Domains → Remove); al hacerlo,
+   el apex también se liberó (aparentemente agrupado con `www` del lado de Render). `crm.` no se tocó y
+   sigue como el único dominio personalizado de Render.
+
+   Verificado: apex y `www` sirven la web pública real (HTTP 200, título correcto), `crm.` sigue
+   funcionando exactamente igual.
 6. Si hace falta preservar enlaces antiguos, redirecciones 301 desde el apex hacia `crm.`.
+
+## Plan completo (2026-09-25)
+
+Los seis pasos de arriba quedaron cubiertos. Único pendiente real: la validación funcional completa
+del CRM (paso 3 — login real, permisos, pagos, mensualidades, WhatsApp, kiosko), que el cliente no
+llegó a confirmar de forma explícita antes de avanzar con la migración de nameservers. Vale la pena
+hacerla ahora que todo está migrado, como cierre.
 
 La cookie de sesión del CRM no lleva atributo `Domain`, así que apex y subdominio quedan con sesiones
 aisladas de forma automática — no se necesita trabajo extra para eso.
