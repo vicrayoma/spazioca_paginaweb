@@ -31,10 +31,23 @@ cifrar en la base de datos. Ninguno depende de este repositorio; los resuelve qu
    (`crm` → `spazio-web-prod.onrender.com`), sin modificar ningún registro existente. Verificado en
    Render (certificado emitido) y probado en el navegador: el login del CRM carga bien en el
    subdominio nuevo. El apex y `www` **siguen sirviendo el CRM igual que antes** — nada se apagó.
-2. ⬜ Copiar todos los registros DNS actuales de GoDaddy (A, CNAME, MX, TXT de SPF/DKIM/DMARC) antes
-   de cualquier cambio. Es lo crítico: perder los MX o TXT tumba el correo. Ya se confirmaron por
-   consulta DNS pública: MX (`mailstore1.secureserver.net` prioridad 10, `smtp.secureserver.net`
-   prioridad 0) y SPF (`v=spf1 include:spf.em.secureserver.net ?all`) — falta revisar si hay DKIM/DMARC.
+2. ✅ **Inventario por consulta DNS pública (2026-09-25).** Confirmado que no hay más subdominios
+   activos (`mail.`, `ftp.`, `autodiscover.` no existen) y no se encontró DKIM bajo los selectores
+   habituales — probable que GoDaddy Workspace Email firme sin exponer un registro visible. Este
+   inventario es un respaldo de lectura, no reemplaza verlos tal cual en el panel de GoDaddy antes de
+   mover nameservers:
+
+   | Tipo | Host | Valor |
+   |---|---|---|
+   | A | `@` (apex) | `216.24.57.1` (Render; hace 301 a `https://www.…`) |
+   | CNAME | `www` | `spazio-web-prod.onrender.com` |
+   | CNAME | `crm` | `spazio-web-prod.onrender.com` |
+   | MX | `@` | `smtp.secureserver.net` (prioridad 0), `mailstore1.secureserver.net` (prioridad 10) |
+   | TXT (SPF) | `@` | `v=spf1 include:spf.em.secureserver.net ?all` |
+   | TXT (DMARC) | `_dmarc` | `v=DMARC1; p=quarantine; adkim=r; aspf=r; rua=mailto:dmarc_rua@onsecureserver.net;` |
+
+   Pendiente: confirmar directo en el panel de GoDaddy que esta lista está completa (por si hay algún
+   registro que no resuelve públicamente, p. ej. uno inactivo) antes del paso 4.
 3. ⬜ Validar el CRM funcionando por completo en el subdominio (login real, permisos, pagos,
    mensualidades, WhatsApp, kiosko) — probado solo que carga, falta el resto.
 4. ⬜ Mover los nameservers a Cloudflare, con los registros ya copiados.
