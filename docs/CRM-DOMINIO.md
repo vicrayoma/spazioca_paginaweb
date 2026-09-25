@@ -26,11 +26,19 @@ cifrar en la base de datos. Ninguno depende de este repositorio; los resuelve qu
 
 ## Plan de migración (sin apagar nada hasta el final)
 
-1. Publicar el CRM en `crm.spaziocentroartistico.com` como dominio personalizado en Render, sin tocar el apex todavía.
-2. Copiar todos los registros DNS actuales de GoDaddy (A, CNAME, MX, TXT de SPF/DKIM/DMARC) antes de cualquier cambio. Es lo crítico: perder los MX o TXT tumba el correo.
-3. Validar el CRM funcionando por completo en el subdominio (login, permisos, pagos, mensualidades, WhatsApp, kiosko).
-4. Mover los nameservers a Cloudflare, con los registros ya copiados.
-5. Apuntar el apex y `www` a Cloudflare Pages (la web).
+1. ✅ **Hecho (2026-09-25).** Publicar el CRM en `crm.spaziocentroartistico.com` como dominio
+   personalizado en Render, sin tocar el apex todavía. Se agregó un CNAME nuevo en GoDaddy
+   (`crm` → `spazio-web-prod.onrender.com`), sin modificar ningún registro existente. Verificado en
+   Render (certificado emitido) y probado en el navegador: el login del CRM carga bien en el
+   subdominio nuevo. El apex y `www` **siguen sirviendo el CRM igual que antes** — nada se apagó.
+2. ⬜ Copiar todos los registros DNS actuales de GoDaddy (A, CNAME, MX, TXT de SPF/DKIM/DMARC) antes
+   de cualquier cambio. Es lo crítico: perder los MX o TXT tumba el correo. Ya se confirmaron por
+   consulta DNS pública: MX (`mailstore1.secureserver.net` prioridad 10, `smtp.secureserver.net`
+   prioridad 0) y SPF (`v=spf1 include:spf.em.secureserver.net ?all`) — falta revisar si hay DKIM/DMARC.
+3. ⬜ Validar el CRM funcionando por completo en el subdominio (login real, permisos, pagos,
+   mensualidades, WhatsApp, kiosko) — probado solo que carga, falta el resto.
+4. ⬜ Mover los nameservers a Cloudflare, con los registros ya copiados.
+5. ⬜ Apuntar el apex y `www` a Cloudflare Pages (la web) y `alumnos` al Worker del portal de alumnos.
 6. Si hace falta preservar enlaces antiguos, redirecciones 301 desde el apex hacia `crm.`.
 
 La cookie de sesión del CRM no lleva atributo `Domain`, así que apex y subdominio quedan con sesiones
