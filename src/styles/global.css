@@ -16,10 +16,51 @@
   --color-papel: #ffffff;
   --color-niebla: #f6f2f9;
 
-  /* Funcionales: solo para distinguir categorías en el horario. No son colores de marca. */
-  --color-horario-verde: #16733f;
-  --color-horario-rojo: #c4283a;
-  --color-horario-naranja: #f4821f;
+  /*
+   * Paleta del horario: deliberadamente más amplia que la marca (a pedido explícito del cliente,
+   * "paletas como las que uno puede consultar en internet"), para elegir color de letra y de fondo
+   * de cada clase por separado. No son colores de marca — viven en su propio espacio de nombres.
+   * Los hex deben coincidir exactamente con HUES/HUE_TENUE_HEX en
+   * SpazioCA/dance-academy/src/scheduleData.js (fuente de verdad de la paleta).
+   */
+  --color-horario-rojo: #e53935;
+  --color-horario-rojo-tenue: #fbe3e3;
+  --color-horario-rosa: #d81b60;
+  --color-horario-rosa-tenue: #fadfe9;
+  --color-horario-morado: #8e24aa;
+  --color-horario-morado-tenue: #efe0f3;
+  --color-horario-violeta: #5e35b1;
+  --color-horario-violeta-tenue: #e8e3f4;
+  --color-horario-indigo: #3949ab;
+  --color-horario-indigo-tenue: #e3e6f3;
+  --color-horario-azul: #1e88e5;
+  --color-horario-azul-tenue: #dfeefb;
+  --color-horario-celeste: #039be5;
+  --color-horario-celeste-tenue: #dcf1fb;
+  --color-horario-cian: #00acc1;
+  --color-horario-cian-tenue: #dbf3f6;
+  --color-horario-verde-azulado: #00897b;
+  --color-horario-verde-azulado-tenue: #dbeeed;
+  --color-horario-verde: #43a047;
+  --color-horario-verde-tenue: #e5f2e5;
+  --color-horario-verde-claro: #7cb342;
+  --color-horario-verde-claro-tenue: #edf4e5;
+  --color-horario-lima: #c0ca33;
+  --color-horario-lima-tenue: #f6f8e2;
+  --color-horario-amarillo: #fdd835;
+  --color-horario-amarillo-tenue: #fffae3;
+  --color-horario-ambar: #ffb300;
+  --color-horario-ambar-tenue: #fff4db;
+  --color-horario-naranja: #fb8c00;
+  --color-horario-naranja-tenue: #feefdb;
+  --color-horario-naranja-oscuro: #f4511e;
+  --color-horario-naranja-oscuro-tenue: #fde7df;
+  --color-horario-cafe: #6d4c41;
+  --color-horario-cafe-tenue: #ebe6e4;
+  --color-horario-gris: #757575;
+  --color-horario-gris-tenue: #ececec;
+  --color-horario-gris-azulado: #546e7a;
+  --color-horario-gris-azulado-tenue: #e7ebec;
 
   --font-sans: 'Jost Variable', 'Jost', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Unbounded Variable', 'Unbounded', var(--font-sans);

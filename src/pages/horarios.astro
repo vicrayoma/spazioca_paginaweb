@@ -1,10 +1,11 @@
 ---
 import Page from '../layouts/Page.astro';
-import { getSchedule, buildGrid, formatTimeRange, STYLE_META } from '../lib/schedule';
+import { getSchedule, buildGrid, formatTimeRange, groupSessionsBySlot, TEXT_COLOR_VARS, BG_COLOR_VARS } from '../lib/schedule';
 import { whatsappHrefWithText } from '../lib/contact';
 
 const schedule = await getSchedule();
 const grid = buildGrid(schedule);
+const sessionGroups = groupSessionsBySlot(schedule.sessions);
 const updated = new Date(schedule.updatedAt).toLocaleDateString('es-MX', {
   year: 'numeric',
   month: 'long',
@@ -21,7 +22,7 @@ const updated = new Date(schedule.updatedAt).toLocaleDateString('es-MX', {
 
     <div class="scroller" data-reveal>
       <div class="grid" style={`--rows: ${grid.rows.length}`}>
-        <div class="cell corner" style="grid-column: 1; grid-row: 1;"></div>
+        <div class="cell corner" style="grid-column: 1; grid-row: 1;">HORA</div>
         {
           schedule.days.map((day, d) => (
             <div class="cell head" style={`grid-column: ${d + 2}; grid-row: 1;`} data-day={d}>
@@ -39,19 +40,23 @@ const updated = new Date(schedule.updatedAt).toLocaleDateString('es-MX', {
         }
 
         {
-          schedule.sessions.map((session) => {
-            const pos = grid.rowPosition.get(session.row)!;
-            const meta = STYLE_META[session.style];
+          sessionGroups.map((group) => {
+            const { day, row } = group[0];
+            const pos = grid.rowPosition.get(row)!;
+            // Defensivo (igual que renderCell() en el tablero del CRM): el backend solo permite que
+            // 2+ clases compartan día+fila cuando tienen exactamente la misma duración, pero por si
+            // ese invariante cambiara algún día, se usa el span más grande del grupo.
+            const span = Math.max(...group.map((s) => s.span));
             return (
-              <div
-                class="cell session"
-                style={`grid-column: ${session.day + 2}; grid-row: ${pos + 2} / span ${session.span}; background:${meta.bg}; color:${meta.fg};`}
-                data-day={session.day}
-              >
-                <span class="icon" aria-hidden="true">
-                  {session.icon}
-                </span>
-                <span class="text">{session.text}</span>
+              <div class="cell session-slot" style={`grid-column: ${day + 2}; grid-row: ${pos + 2} / span ${span};`} data-day={day}>
+                {group.map((session) => (
+                  <div class="session" style={`background:${BG_COLOR_VARS[session.bgColor]}; color:${TEXT_COLOR_VARS[session.textColor]};`}>
+                    <span class="icon" aria-hidden="true">
+                      {session.icon}
+                    </span>
+                    <span class="text">{session.text}</span>
+                  </div>
+                ))}
               </div>
             );
           })
@@ -110,7 +115,13 @@ const updated = new Date(schedule.updatedAt).toLocaleDateString('es-MX', {
   }
 
   .corner {
+    justify-content: center;
     background: var(--color-morado);
+    color: var(--color-papel);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
   }
 
   .head {
@@ -134,13 +145,27 @@ const updated = new Date(schedule.updatedAt).toLocaleDateString('es-MX', {
     background: var(--color-niebla);
   }
 
+  .session-slot {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    border-radius: 0.4rem;
+    overflow: hidden;
+  }
+
   .session {
+    flex: 1;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0.3rem;
     text-align: center;
-    border-radius: 0.4rem;
+    padding: 0.6rem 0.5rem;
+  }
+
+  .session + .session {
+    border-top: 1px solid color-mix(in srgb, var(--color-tinta) 10%, transparent);
   }
 
   .session .icon {

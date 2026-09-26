@@ -52,7 +52,8 @@ export interface Discipline {
   name: string;
   category: string;
   icon: string;
-  style: ScheduleSession['style'];
+  textColor: ScheduleSession['textColor'];
+  bgColor: ScheduleSession['bgColor'];
   /** Días y horario en los que se imparte, ya formateados y sin duplicados. */
   slots: { day: string; time: string }[];
 }
@@ -68,7 +69,10 @@ export function groupByDiscipline(data: ScheduleData): Discipline[] {
 
     let discipline = byName.get(name);
     if (!discipline) {
-      discipline = { name, category: categoryFor(session.text), icon: session.icon, style: session.style, slots: [] };
+      discipline = {
+        name, category: categoryFor(session.text), icon: session.icon,
+        textColor: session.textColor, bgColor: session.bgColor, slots: []
+      };
       byName.set(name, discipline);
     }
     if (!discipline.slots.some((s) => s.day === day && s.time === time)) {
@@ -115,17 +119,40 @@ export function buildGrid(data: ScheduleData): ScheduleGrid {
   return { rows, rowPosition: new Map(rows.map((row, i) => [row, i])) };
 }
 
-// Colores por estilo de sesión, derivados solo de los tokens de marca + los funcionales del horario
-// (ver src/styles/global.css). "block-*" son celdas de fondo sólido; el resto, tenues.
-export const STYLE_META: Record<ScheduleSession['style'], { bg: string; fg: string }> = {
-  navy: { bg: 'var(--color-niebla)', fg: 'var(--color-morado)' },
-  purple: { bg: 'var(--color-niebla)', fg: 'var(--color-morado)' },
-  pink: { bg: 'color-mix(in srgb, var(--color-magenta) 12%, white)', fg: 'var(--color-magenta)' },
-  green: { bg: 'color-mix(in srgb, var(--color-horario-verde) 12%, white)', fg: 'var(--color-horario-verde)' },
-  red: { bg: 'color-mix(in srgb, var(--color-horario-rojo) 12%, white)', fg: 'var(--color-horario-rojo)' },
-  blue: { bg: 'color-mix(in srgb, var(--color-cian) 12%, white)', fg: 'var(--color-cian)' },
-  orange: { bg: 'color-mix(in srgb, var(--color-horario-naranja) 12%, white)', fg: 'var(--color-horario-naranja)' },
-  'block-orange': { bg: 'var(--color-horario-naranja)', fg: 'var(--color-papel)' },
-  'block-green': { bg: 'var(--color-horario-verde)', fg: 'var(--color-papel)' },
-  'block-lavender': { bg: 'var(--color-niebla)', fg: 'var(--color-morado)' },
-};
+// Resuelve cada token de color de letra/fondo (paleta amplia, elegida en el CRM) a la variable CSS
+// correspondiente — siempre tokens de src/styles/global.css, nunca hex sueltos aquí.
+const HUES = [
+  'rojo', 'rosa', 'morado', 'violeta', 'indigo', 'azul', 'celeste', 'cian', 'verde-azulado',
+  'verde', 'verde-claro', 'lima', 'amarillo', 'ambar', 'naranja', 'naranja-oscuro', 'cafe',
+  'gris', 'gris-azulado',
+] as const;
+
+export const TEXT_COLOR_VARS: Record<ScheduleSession['textColor'], string> = Object.fromEntries([
+  ...HUES.map((hue) => [hue, `var(--color-horario-${hue})`]),
+  ['tinta', 'var(--color-tinta)'],
+  ['papel', 'var(--color-papel)'],
+]) as Record<ScheduleSession['textColor'], string>;
+
+export const BG_COLOR_VARS: Record<ScheduleSession['bgColor'], string> = Object.fromEntries([
+  ...HUES.flatMap((hue) => [
+    [hue, `var(--color-horario-${hue})`],
+    [`${hue}-tenue`, `var(--color-horario-${hue}-tenue)`],
+  ]),
+  ['niebla', 'var(--color-niebla)'],
+  ['papel', 'var(--color-papel)'],
+]) as Record<ScheduleSession['bgColor'], string>;
+
+/**
+ * Agrupa las sesiones por día+fila: dos o más clases pueden compartir exactamente el mismo
+ * horario (se muestran apiladas en una sola celda del grid), igual que ya hace el tablero del CRM.
+ */
+export function groupSessionsBySlot(sessions: ScheduleSession[]): ScheduleSession[][] {
+  const byKey = new Map<string, ScheduleSession[]>();
+  for (const session of sessions) {
+    const key = `${session.day}-${session.row}`;
+    const group = byKey.get(key);
+    if (group) group.push(session);
+    else byKey.set(key, [session]);
+  }
+  return [...byKey.values()];
+}
