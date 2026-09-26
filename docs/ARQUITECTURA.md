@@ -48,11 +48,14 @@ docs/          BRAND.md, ARQUITECTURA.md, SITEMAP.md, CRM-DOMINIO.md
 
 ## Contenido editable
 
-El horario general se edita hoy en un tablero (Artifact) que exporta los cambios. Ya se integró como
-`src/content/schedule/general.json`, validado con un esquema Zod (`src/content.config.ts`) — Disciplinas,
-Horarios e Inicio se generan a partir de ese archivo, no de texto suelto en las páginas. Cuando el tablero
-cambie, se vuelve a leer el Artifact y se actualiza ese JSON a mano; no hay automatización todavía.
-Si más adelante se requiere edición sin pasar por git, se añade un CMS (Keystatic o Sanity).
+El horario general se edita en el módulo "Horarios" del CRM (antes se editaba a mano en un tablero /
+Artifact que exportaba un JSON commiteado — ver `docs/CRM-DOMINIO.md`). El build de Astro trae el
+horario del CRM en cada ejecución (`src/content/loaders/schedule.ts`, un Content Loader personalizado
+que hace `fetch` a `/api/v1/public/horarios`), validado con el mismo esquema Zod de siempre
+(`src/content.config.ts`) — Disciplinas, Horarios e Inicio se siguen generando a partir de esos datos,
+no de texto suelto en las páginas. `src/content/schedule/general.json` queda solo como respaldo si el
+CRM no responde en build time. Publicar un cambio de horario = guardar en el CRM y darle "Publicar
+ahora" (dispara un Deploy Hook de Cloudflare que reconstruye el sitio) — no hace falta tocar git.
 
 ## Fases
 
